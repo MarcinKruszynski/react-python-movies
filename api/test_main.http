@@ -20,5 +20,58 @@ Accept: application/json
 
 ###
 
-DELETE http://127.0.0.1:8000/movies/5
+DELETE http://127.0.0.1:8000/movies/4
+Accept: application/json
+
+###
+
+PUT 127.0.0.1:8000/movies/3
+Content-Type: application/json
+
+{
+  "title": "Mad Max: Fury Road",
+  "year": 2015,
+  "director": "George Miller",
+  "description": ""
+}
+
+###
+
+DELETE http://127.0.0.1:8000/movies
+Accept: application/json
+
+###
+
+
+GET http://127.0.0.1:8000/actors
+Accept: application/json
+
+###
+
+POST http://127.0.0.1:8000/actors
+Content-Type: application/json
+
+{
+  "name": "Uma",
+  "surname": "Thurman"
+}
+
+###
+
+GET http://127.0.0.1:8000/actors/1
+Accept: application/json
+
+###
+
+PUT http://127.0.0.1:8000/actors/1
+Content-Type: application/json
+
+{
+  "name": "Uma",
+  "surname": "Thurman-Updated"
+}
+
+###
+
+DELETE http://127.0.0.1:8000/actors/8
 Accept: application/json

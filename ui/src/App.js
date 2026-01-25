@@ -20,7 +20,6 @@ function App() {
     }, []);
 
     async function handleAddMovie(movie) {
-        movie.actors = ''
         const response = await fetch('/movies', {
             method: 'POST',
             body: JSON.stringify(movie),
