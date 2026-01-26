@@ -43,6 +43,10 @@ class Actor(ActorBase):
     id: int = Field(..., gt=0)
 
 
+class MovieWithActors(Movie):
+    actors: List[Actor] = []
+
+
 def get_db():
     connection = sqlite3.connect(DB_FILE_NAME)
     connection.row_factory = sqlite3.Row
@@ -121,6 +125,45 @@ def db_fetch_movie_actors(db: sqlite3.Connection, movie_id: int) -> List[dict]:
     return [dict(row) for row in cursor]
 
 
+def db_fetch_all_movies_with_actors(db: sqlite3.Connection) -> List[dict]:
+    cursor = db.cursor()
+    query = '''
+        SELECT 
+            m.id as movie_id, m.title, m.year, m.director, m.description,
+            a.id as actor_id, a.name, a.surname
+        FROM movie m
+        LEFT JOIN movie_actor_through mat ON m.id = mat.movie_id
+        LEFT JOIN actor a ON mat.actor_id = a.id
+    '''
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    movies_map = {}
+
+    for row in rows:
+        m_id = row['movie_id']
+        
+        if m_id not in movies_map:
+            movies_map[m_id] = {
+                "id": m_id,
+                "title": row['title'],
+                "year": row['year'],
+                "director": row['director'],
+                "description": row['description'],
+                "actors": []
+            }
+        
+        if row['actor_id'] is not None:
+            actor = {
+                "id": row['actor_id'],
+                "name": row['name'],
+                "surname": row['surname']
+            }
+            movies_map[m_id]['actors'].append(actor)
+
+    return list(movies_map.values())
+
+
 @app.exception_handler(sqlite3.IntegrityError)
 async def sqlite_integrity_exception_handler(request: Request, exc: sqlite3.IntegrityError):
     logger.exception("Database integrity error occurred")
@@ -180,9 +223,9 @@ def serve_react_app():
     return FileResponse("../ui/build/index.html")
 
 
-@app.get('/movies', response_model=List[Movie])
+@app.get('/movies', response_model=List[MovieWithActors])
 def get_movies(db: sqlite3.Connection = Depends(get_db)):
-    return db_fetch_all(db, MOVIE_TABLE_NAME)
+    return db_fetch_all_movies_with_actors(db)
 
 
 @app.get('/movies/{movie_id}', response_model=Movie)
