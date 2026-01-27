@@ -1,10 +1,12 @@
 import {useState} from "react";
+import ActorsSelect from "./ActorsSelect";
 
 export default function MovieForm(props) {
     const [title, setTitle] = useState('');
     const [year, setYear] = useState('');
     const [director, setDirector] = useState('');
     const [description, setDescription] = useState('');
+    const [selectedActors, setSelectedActors] = useState([]);
 
     function addMovie(event) {
         event.preventDefault();
@@ -16,12 +18,13 @@ export default function MovieForm(props) {
         setYear('');
         setDirector('');
         setDescription('');
+        setSelectedActors([]);
     }
 
     return <form onSubmit={addMovie}>
         <h2>Add movie</h2>
         <div>
-            <label>Tytuł</label>
+            <label>Title</label>
             <input type="text" value={title} onChange={(event) => setTitle(event.target.value)}/>
         </div>
         <div>
@@ -31,6 +34,10 @@ export default function MovieForm(props) {
         <div>
             <label>Director</label>
             <input type="text" value={director} onChange={(event) => setDirector(event.target.value)}/>
+        </div>
+        <div>
+            <label>Actors</label>
+            <ActorsSelect value={selectedActors} onChange={setSelectedActors}/>
         </div>
         <div>
             <label>Description</label>

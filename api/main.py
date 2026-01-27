@@ -1,5 +1,5 @@
 import logging
-from fastapi import FastAPI, Path, HTTPException, Request, Depends, Query
+from fastapi import FastAPI, Path, HTTPException, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
@@ -122,14 +122,6 @@ def db_fetch_movie_actors(db: sqlite3.Connection, movie_id: int) -> List[dict]:
             WHERE mat.movie_id = ? 
             '''
     cursor.execute(query, (movie_id,))
-    return [dict(row) for row in cursor]
-
-
-def db_search_actors(db: sqlite3.Connection, search_string: str) -> List[dict]:
-    cursor = db.cursor()
-    query = f"SELECT * FROM {ACTOR_TABLE_NAME} WHERE name LIKE ? OR surname LIKE ?"
-    wildcard_search = f"%{search_string}%"
-    cursor.execute(query, (wildcard_search, wildcard_search))
     return [dict(row) for row in cursor]
 
 
@@ -280,10 +272,7 @@ def delete_movies(db: sqlite3.Connection = Depends(get_db)):
 
 
 @app.get('/actors', response_model=List[Actor])
-def get_actors(db: sqlite3.Connection = Depends(get_db),
-               q: Annotated[Optional[str], Query(min_length=3, description="Search by name or surname")] = None):
-    if q:
-        return db_search_actors(db, q)
+def get_actors(db: sqlite3.Connection = Depends(get_db)):
     return db_fetch_all(db, ACTOR_TABLE_NAME)
 
 
