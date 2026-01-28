@@ -40,3 +40,7 @@
 ul.movies-list {
   list-style: none;
 }
+
+.actor-select {
+    margin-bottom: 1.5rem;
+}
