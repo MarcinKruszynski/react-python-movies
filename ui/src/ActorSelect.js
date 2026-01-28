@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react";
 
-export default function ActorsSelect({value, onChange}) {
+export default function ActorSelect({value, onChange}) {
     const [availableActors, setAvailableActors] = useState([]);
 
     useEffect(() => {

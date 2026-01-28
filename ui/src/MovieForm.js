@@ -1,5 +1,5 @@
 import {useState} from "react";
-import ActorsSelect from "./ActorsSelect";
+import ActorSelect from "./ActorSelect";
 
 export default function MovieForm(props) {
     const [title, setTitle] = useState('');
@@ -37,7 +37,7 @@ export default function MovieForm(props) {
         </div>
         <div>
             <label>Actors</label>
-            <ActorsSelect value={selectedActors} onChange={setSelectedActors}/>
+            <ActorSelect value={selectedActors} onChange={setSelectedActors}/>
         </div>
         <div>
             <label>Description</label>
