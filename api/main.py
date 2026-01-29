@@ -30,6 +30,10 @@ class MovieBase(BaseModel):
     description: str
 
 
+class MovieCreate(MovieBase):
+    actor_ids: List[int] = []
+
+
 class Movie(MovieBase):
     id: int = Field(..., gt=0)
 
@@ -164,6 +168,24 @@ def db_fetch_all_movies_with_actors(db: sqlite3.Connection) -> List[dict]:
     return list(movies_map.values())
 
 
+def db_insert_movie_with_actors(db: sqlite3.Connection, movie: MovieCreate) -> int:
+    with db:
+        cursor = db.cursor()
+
+        sql_movie = "INSERT INTO movie (title, year, director, description) VALUES (?, ?, ?, ?)"
+        cursor.execute(sql_movie, (movie.title, movie.year, movie.director, movie.description))
+        new_movie_id = cursor.lastrowid
+
+        if movie.actor_ids:
+            relations = [(new_movie_id, actor_id) for actor_id in movie.actor_ids]
+            cursor.executemany(
+                f"INSERT INTO movie_actor_through (movie_id, actor_id) VALUES (?, ?)",
+                relations
+            )
+
+        return new_movie_id
+
+
 @app.exception_handler(sqlite3.IntegrityError)
 async def sqlite_integrity_exception_handler(request: Request, exc: sqlite3.IntegrityError):
     logger.exception("Database integrity error occurred")
@@ -237,8 +259,8 @@ def get_movie(movie_id: Annotated[int, Path(gt=0)], db: sqlite3.Connection = Dep
 
 
 @app.post('/movies')
-def add_movie(movie: MovieBase, db: sqlite3.Connection = Depends(get_db)):
-    new_id = db_insert(db, MOVIE_TABLE_NAME, movie.model_dump())
+def add_movie(movie: MovieCreate, db: sqlite3.Connection = Depends(get_db)):
+    new_id = db_insert_movie_with_actors(db, movie)
     return {
         "id": new_id,
         "message": "Movie added successfully"

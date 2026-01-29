@@ -20,9 +20,17 @@ function App() {
     }, []);
 
     async function handleAddMovie(movie) {
+        const payload = {
+            title: movie.title,
+            year: movie.year,
+            director: movie.director,
+            description: movie.description,
+            actor_ids: movie.actors ? movie.actors.map(actor => actor.id) : []
+        };
+
         const response = await fetch('/movies', {
             method: 'POST',
-            body: JSON.stringify(movie),
+            body: JSON.stringify(payload),
             headers: {'Content-Type': 'application/json'}
         });
         if (response.ok) {
