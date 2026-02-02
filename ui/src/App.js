@@ -4,6 +4,7 @@ import "milligram";
 import MovieForm from "./MovieForm";
 import MoviesList from "./MoviesList";
 import {ToastContainer, toast} from 'react-toastify';
+import {COULD_NOT_CONNECT_TO_SERVER, getErrorMessage} from "./utils";
 
 function App() {
     const [movies, setMovies] = useState([]);
@@ -13,6 +14,7 @@ function App() {
         const controller = new AbortController();
 
         const fetchMovies = async () => {
+            const contextErrorMessage = 'Failed to load movies';
             try {
                 const response = await fetch(`/movies`, {signal: controller.signal});
                 if (response.ok) {
@@ -20,11 +22,11 @@ function App() {
                     setMovies(movies);
                 } else {
                     const errorData = await response.json();
-                    toast.error(errorData.detail || 'Failed to load movies');
+                    toast.error(getErrorMessage(contextErrorMessage, errorData.detail));
                 }
             } catch (error) {
                 if (error.name === 'AbortError') return;
-                toast.error('Network error: Could not connect to server');
+                toast.error(getErrorMessage(contextErrorMessage, COULD_NOT_CONNECT_TO_SERVER));
             }
         };
 
@@ -41,7 +43,7 @@ function App() {
             description: movie.description,
             actor_ids: movie.actors ? movie.actors.map(actor => actor.id) : []
         };
-
+        const contextErrorMessage = 'Failed to add movie';
         try {
             const response = await fetch('/movies', {
                 method: 'POST',
@@ -56,15 +58,16 @@ function App() {
                 toast.success('Movie added successfully');
             } else {
                 const errorData = await response.json();
-                toast.error(errorData.detail || 'Failed to add movie');
+                toast.error(getErrorMessage(contextErrorMessage, errorData.detail));
             }
         } catch (error) {
-            toast.error('Network error: Could not connect to server');
+            toast.error(getErrorMessage(contextErrorMessage, COULD_NOT_CONNECT_TO_SERVER));
         }
     }
 
     async function handleDeleteMovie(movie) {
         const url = `/movies/${movie.id}`;
+        const contextErrorMessage = 'Failed to delete movie';
         try {
             const response = await fetch(url, {method: 'DELETE'});
             if (response.ok) {
@@ -72,10 +75,10 @@ function App() {
                 toast.success('Movie deleted successfully');
             } else {
                 const errorData = await response.json();
-                toast.error(errorData.detail || 'Failed to delete movie');
+                toast.error(getErrorMessage(contextErrorMessage, errorData.detail));
             }
         } catch (error) {
-            toast.error('Network error: Could not connect to server');
+            toast.error(getErrorMessage(contextErrorMessage, COULD_NOT_CONNECT_TO_SERVER));
         }
     }
 

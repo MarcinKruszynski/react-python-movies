@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import Select from "react-select";
 import { toast } from 'react-toastify';
+import {COULD_NOT_CONNECT_TO_SERVER, getErrorMessage} from "./utils";
 
 export default function ActorSelect({value, onChange}) {
     const [availableActors, setAvailableActors] = useState([]);
@@ -9,6 +10,7 @@ export default function ActorSelect({value, onChange}) {
         const controller = new AbortController();
 
         const fetchActors = async () => {
+            const contextErrorMessage = 'Failed to load actors';
             try {
                 const response = await fetch(`/actors`, {signal: controller.signal});
                 if (response.ok) {
@@ -16,11 +18,11 @@ export default function ActorSelect({value, onChange}) {
                     setAvailableActors(actors);
                 } else {
                     const errorData = await response.json();
-                    toast.error(errorData.detail || 'Failed to load actors');
+                    toast.error(getErrorMessage(contextErrorMessage, errorData.detail));
                 }
             } catch (error) {
                 if (error.name === 'AbortError') return;
-                toast.error('Network error: Could not connect to server');
+                toast.error(getErrorMessage(contextErrorMessage, COULD_NOT_CONNECT_TO_SERVER));
             }
         };
 
