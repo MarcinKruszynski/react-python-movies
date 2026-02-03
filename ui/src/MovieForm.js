@@ -1,27 +1,30 @@
 import {useState} from "react";
+import ActorSelect from "./ActorSelect";
 
 export default function MovieForm(props) {
     const [title, setTitle] = useState('');
     const [year, setYear] = useState('');
     const [director, setDirector] = useState('');
     const [description, setDescription] = useState('');
+    const [selectedActors, setSelectedActors] = useState([]);
 
     function addMovie(event) {
         event.preventDefault();
         if (title.length < 5) {
             return alert('Tytuł jest za krótki');
         }
-        props.onMovieSubmit({title, year, director, description});
+        props.onMovieSubmit({title, year, director, description, actors: selectedActors});
         setTitle('');
         setYear('');
         setDirector('');
         setDescription('');
+        setSelectedActors([]);
     }
 
     return <form onSubmit={addMovie}>
         <h2>Add movie</h2>
         <div>
-            <label>Tytuł</label>
+            <label>Title</label>
             <input type="text" value={title} onChange={(event) => setTitle(event.target.value)}/>
         </div>
         <div>
@@ -31,6 +34,10 @@ export default function MovieForm(props) {
         <div>
             <label>Director</label>
             <input type="text" value={director} onChange={(event) => setDirector(event.target.value)}/>
+        </div>
+        <div>
+            <label>Actors</label>
+            <ActorSelect value={selectedActors} onChange={setSelectedActors}/>
         </div>
         <div>
             <label>Description</label>
